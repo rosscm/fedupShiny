@@ -2,8 +2,6 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -16,39 +14,36 @@ knitr::opts_chunk$set(
 # fedupShiny
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of fedupShiny is to ...
+`{fedupShiny}` is an R Shiny implementation of the Bioconductor `{fedup}` package
+developed with the `{golem}` framework.
+Source code can be found [here](https://github.com/rosscm/fedup).
 
-## Installation
+Install and run `{fedupShiny}` in R as follows:
 
-You can install the released version of fedupShiny from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("fedupShiny")
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("rosscm/fedupShiny")
+fedupShiny::run_app()
 ```
 
-## Example
+To deploy `{fedupShiny}` via Docker, first clone this repo locally:
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(fedupShiny)
-## basic example code
+```
+git clone https://github.com/rosscm/fedupShiny.git
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Build the image by running this command in the app's home directory
+(where the Dockerfile is stored):
 
-```{r cars}
-summary(cars)
+```
+docker build -t rosscm-fedupshiny .
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
+And run the container:
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
 ```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+docker run -d -p 80:80 rosscm-fedupshiny
+```
