@@ -24,6 +24,7 @@ Imports:
     golem (>= 0.3.1),
     htmltools,
     openxlsx,
+    pkgload,
     processx,
     RCy3,
     shiny (>= 1.6.0),
