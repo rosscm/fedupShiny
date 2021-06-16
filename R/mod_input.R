@@ -28,7 +28,7 @@ mod_input_ui <- function(id) {
       inputId = ns("sourceInput"),
       label = "Select annotation source(s):",
       choices = list("GOBP", "REACTOME", "MSIGDB_C2", "HUMANCYC", "PANTHER", "IOB", "NETPATH"),
-      selected = "MSIGDB_C2"
+      selected = NULL
     ),
     # Annotation size slider input
     sliderInput(

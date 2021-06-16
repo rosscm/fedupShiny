@@ -35,30 +35,40 @@ mod_help_ui <- function(id) {
         id = "accordion1",
         accordionItem(
           title = "Gene input table",
-          collapsed = TRUE,
-          "This is some text!",
-          attachmentBlock(
-            image = "http://kiev.carpediem.cd/data/afisha/o/2d/c7/2dc7670333.jpg",
-            title = "Test",
-            href = "http://google.com",
-            "This is the content"
-          ),
+          collapsed = FALSE,
+          HTML("<b>REQUIRED BY USER</b><br>Text file (excel, txt, or csv format) with
+          genes to test for enrichment per row and unique test sets per column.
+          The first column of this file <b>must</b> be labelled 'background'
+          (case sensitive) with any additional number of subsequent columns
+          named according to your test set(s).<br>A sample input table can be
+          downloaded from
+          <a href='https://github.com/rosscm/fedupShiny/blob/main/inst/extdata/sample_gene_input.txt'>Github.</a>")
         ),
         accordionItem(
           title = "Annotation type",
-          collapsed = TRUE,
-          HTML("Select annotation size range <br>
-          (min/max number of genes per pathway):")
+          collapsed = FALSE,
+          HTML("Option to select relevant pathway annotations for input gene
+          data.<br>The annotation files used in this app can be downloaded from
+          <a href='https://github.com/rosscm/fedupShiny/tree/main/inst/extdata'>Github.</a>
+          Helpful information about these files can also be found at the
+          Bader Lab GeneSets <a href='http://baderlab.org/GeneSets'>page.</a>
+          <br><br>Current options: Human, Mouse<br>Default: Human")
         ),
         accordionItem(
           title = "Annotation source(s)",
-          collapsed = TRUE,
-          "This is some text!"
+          collapsed = FALSE,
+          HTML("Option to select any number of annotation sources for enrichment
+          analysis. Again, helpful information about these annotations can be
+          found at the Bader Lab GeneSets page linked above.<br><br>
+          Current options: GOBP, REACTOME, MSIGDB_C2, HUMANCYC, PANTHER, IOB, NETPATH
+          <br>Default: None")
         ),
         accordionItem(
           title = "Annotation size range",
-          collapsed = TRUE,
-          "This is some text!"
+          collapsed = FALSE,
+          HTML("Slider option to select minimum and maximum number of genes per
+          pathway annotation.<br><br>Current option: 0 to 1000<br>
+          Default: 10 to 300")
         )
       )
     )
