@@ -19,12 +19,11 @@ app_ui <- function(request) {
         width = 320,
         sidebarMenu(
           menuItem("Introduction and Usage", tabName = "usage", icon = icon("question-circle"), badgeLabel = "README"),
+          menuItem("Results Dashboard", tabName = "results", icon = icon("tachometer-alt")),
           menuItem("Input Configuration", mod_input_ui("input"), icon = icon("upload")),
-          menuItem("Output Dashboard", tabName = "output", icon = icon("tachometer-alt")),
+          menuItem("Output Configuration", mod_output_ui("output"), icon = icon("download")),
           rep_br(2),
-          col_2(
-            h5("External links")
-          ),
+          col_2(h5("External links")),
           rep_br(2),
           menuItem("Full Vignettes", href = "https://bioconductor.org/packages/release/bioc/html/fedup.html", icon = icon("file-alt")),
           menuItem(HTML("&nbsp;&nbsp;Source Code"), href = "https://github.com/rosscm/fedup", icon = icon("github")),
@@ -50,7 +49,7 @@ app_ui <- function(request) {
           tabItem(tabName = "usage",
             mod_help_ui("help")
           ),
-          tabItem(tabName = "output",
+          tabItem(tabName = "results",
             mod_main_ui("main")
           )
         )

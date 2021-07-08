@@ -10,7 +10,7 @@ mod_input_ui <- function(id) {
   tagList(
     # Gene input
     fileInput(
-      inputId = ns("geneInput"),
+      inputId = ns("fs_input"),
       label = "Select file with gene input table:",
       multiple = FALSE,
       accept = c(".txt", ".csv", ".xlsx", ".xls"),
@@ -18,25 +18,32 @@ mod_input_ui <- function(id) {
     ),
     # Annotation type input
     radioButtons(
-      inputId = ns("annoInput"),
+      inputId = ns("fs_anno"),
       label = "Select annotation type:",
       choices = list("Human", "Mouse"),
       selected = "Human"
     ),
-    # Annotation source(s) input
+    # Annotation fs_source(s) input
     checkboxGroupInput(
-      inputId = ns("sourceInput"),
+      inputId = ns("fs_source"),
       label = "Select annotation source(s):",
       choices = list("GOBP", "REACTOME", "MSIGDB_C2", "HUMANCYC", "PANTHER", "IOB", "NETPATH"),
-      selected = NULL
+      selected = "REACTOME"
     ),
     # Annotation size slider input
     sliderInput(
-      inputId = ns("sizeInput"),
+      inputId = ns("fs_size"),
       label = "Select annotation size range:",
       min = 0,
       max = 1000,
-      value = c(10, 300)
+      value = c(10, 500)
+    ),
+    # Action button input
+    actionButton(
+      inputId = ns("fs_run"),
+      label = "Analyze my data!",
+      icon = icon("project-diagram"),
+      width = "200px"
     )
   )
 }
@@ -50,20 +57,24 @@ mod_input_server <- function(id, rvals) {
 
     # Store input variables in rvals object to share between modules
     # Reactive gene input
-    observeEvent(input$geneInput, {
-      rvals$geneInput = input$geneInput
+    observeEvent(input$fs_input, {
+      rvals$fs_input = input$fs_input
     })
     # Reactive annotation input
-    observeEvent(input$annoInput, {
-      rvals$annoInput = input$annoInput
+    observeEvent(input$fs_anno, {
+      rvals$fs_anno = input$fs_anno
     })
-    # Reactive source input
-    observeEvent(input$sourceInput, {
-      rvals$sourceInput = input$sourceInput
+    # Reactive fs_source input
+    observeEvent(input$fs_source, {
+      rvals$fs_source = input$fs_source
     })
     # Reactive size input
-    observeEvent(input$sizeInput, {
-      rvals$sizeInput = input$sizeInput
+    observeEvent(input$fs_size, {
+      rvals$fs_size = input$fs_size
+    })
+    # Reactive action button
+    observeEvent(input$fs_run, {
+      rvals$fs_run = input$fs_run
     })
   })
 }

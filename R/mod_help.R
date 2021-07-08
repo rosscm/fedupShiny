@@ -61,7 +61,7 @@ mod_help_ui <- function(id) {
           analysis. Again, helpful information about these annotations can be
           found at the Bader Lab GeneSets page linked above.<br><br>
           Current options: GOBP, REACTOME, MSIGDB_C2, HUMANCYC, PANTHER, IOB, NETPATH
-          <br>Default: None")
+          <br>Default: GOBP")
         ),
         accordionItem(
           title = "Annotation size range",
