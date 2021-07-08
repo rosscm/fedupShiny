@@ -1,3 +1,36 @@
+#' Produce scatterplot
+#'
+#' @param df (data.frame) table with fedup results
+#' @param xVar (char) x-axis variable (must be a column value in \code{df})
+#' @param yVar (char) y-axis variable (must be a column value in \code{df})
+#' @param xLab (char) x-axis label (default \code{xVar} value)
+#' @param yLab (char) y-axis label (default NULL)
+#' @param pTitle (char) plot title (default NULL)
+#' @param fillVar (char) point fill variable (default NULL)
+#' @param fillCol (char) point fill colours (default NULL)
+#' @param fillLab (char) point fill label (default \code{fillVar} value)
+#' @param sizeVar (char) point size variable (default NULL)
+#' @param sizeLab (char) point size label (default \code{sizeVar} value)
+#' @return Object returned from ggplot with the enrichment dot plot
+#' @export
+enrichment_plot <- function(data, xvar) {
+    p <- plotDotPlot(
+      df = fedup_plot,
+      xVar = "log10qvalue",
+      yVar = "pathway",
+      xLab = "-log10(qvalue)",
+      fillVar = "sign",
+      fillLab = "Genetic interaction",
+      fillCol = c("#6D90CA", "#F6EB13"),
+      sizeVar = "fold_enrichment",
+      sizeLab = "Fold enrichment"
+    ) +
+    facet_grid("sign", scales = "free", space = "free") +
+    theme(strip.text.y = element_blank())
+  return(p)
+}
+
+
 #' Repeat tags$br
 #'
 #' @param times the number of br to return
