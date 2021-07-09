@@ -16,10 +16,15 @@ app_server <- function(input, output, session) {
     fs_file = NULL,
     fs_set = NULL,
     fs_results = NULL,
+    fs_sig_results = NULL,
+    fs_plot = NULL,
     fs_fdr = NULL,
     fs_xvar = NULL,
+    fs_xvar_lab = NULL,
     fs_fill = NULL,
+    fs_fill_lab = NULL,
     fs_point = NULL,
+    fs_point_lab = NULL,
     fs_redraw = NULL
   )
 
