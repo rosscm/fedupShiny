@@ -11,9 +11,9 @@ mod_main_ui <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
+      valueBoxOutput(ns("nTest")),
       valueBoxOutput(ns("nPath")),
-      valueBoxOutput(ns("nBack")),
-      valueBoxOutput(ns("nTest"))
+      valueBoxOutput(ns("nRes"))
     ),
     actionButton(
       inputId = ns("plotEM"),
@@ -37,7 +37,7 @@ mod_main_ui <- function(id) {
           title = "Enrichment Table", width = NULL, status = "success",
           solidHeader = TRUE, collapsed = FALSE, collapsible = TRUE,
           div(style = 'overflow-x: scroll', DTOutput(ns("resTable"))),
-          uiOutput(ns("getData"))
+          uiOutput(ns("getDataTXT")), uiOutput(ns("getDataXLSX"))
         )
       )
     )
@@ -65,7 +65,7 @@ mod_main_server <- function(id, rvals, dataset) {
     ns <- session$ns
 
     ######
-    # STEP 1
+    # ITERATION 1
     ######
 
     # Run fedup and render outputs using **default** settings
@@ -99,8 +99,6 @@ mod_main_server <- function(id, rvals, dataset) {
       annoFiles <- list.files(pattern = "gmt", path = file.path("inst", "extdata"), full.names = TRUE)
       annoRead <- grep(rvals$fs_anno, annoFiles, value = TRUE)
       anno <- readPathways(annoRead, minGene = min(rvals$fs_size), maxGene = max(rvals$fs_size))
-
-      print(annoRead)
 
       # Subset annotation source(s)
       annoSource <- paste0("%", rvals$fs_source, collapse = "|")
@@ -148,7 +146,7 @@ mod_main_server <- function(id, rvals, dataset) {
       fedupRes <- runFedup(genes, annoFinal)
       waiter_hide()
 
-      # Store results in rvals object
+      # Store complete results in rvals object
       observeEvent(fedupRes, {
         rvals$fs_results = fedupRes
       })
@@ -166,6 +164,11 @@ mod_main_server <- function(id, rvals, dataset) {
         mutate(status = factor(status, levels = c("enriched", "depleted"))) %>%
         as.data.frame()
 
+      # Store significant results in rvals object
+      observeEvent(fedupPlot, {
+        rvals$fs_sig_results = fedupPlot
+      })
+
       # Plot
       p <- plotDotPlot(
         df = fedupPlot,
@@ -179,25 +182,17 @@ mod_main_server <- function(id, rvals, dataset) {
         sizeLab = "Fold enrichment"
       ) +
       facet_grid("sign", scales = "free", space = "free") +
-      theme(strip.text.y = element_blank())
+      theme(strip.text.y = element_blank(),
+            legend.background = element_rect(color = NA))
+
+      # Store plot in rvals object
+      observeEvent(p, {
+        rvals$fs_plot = p
+      })
 
       ######
       # OUTPUT RENDERING
       ######
-
-      # Pathway number value box
-      output$nPath <- renderValueBox({
-        valueBox(
-          length(annoFinal), "Tested pathways", icon = icon("list"), color = "purple"
-        )
-      })
-
-      # Background gene number value box
-      output$nBack <- renderValueBox({
-        valueBox(
-          length(genes[[1]]), "Background genes", icon = icon("list"), color = "purple"
-        )
-      })
 
       # Test set number value box
       output$nTest <- renderValueBox({
@@ -206,64 +201,16 @@ mod_main_server <- function(id, rvals, dataset) {
         )
       })
 
-      # Plot output
-      output$resPlot <- renderPlot({
-        if (!nrow(fedupPlot)) {
-          shinyalert(
-            text = "Nothing to plot! Try out another input configuration.",
-            size = "xs", type = "warning"
-          )
-          return(NULL)
-        }
-        return(p)
-      })
-
-      # Table output
-      output$resTable <- renderDT({
-        if (!nrow(fedupPlot)) {
-          return(NULL)
-        }
-        return(fedupPlot)
-      })
-
-      ######
-      # OUTPUT DOWNLOADING
-      ######
-
-      # Download plot
-      output$getPlot <- renderUI({
-        req(fedupPlot)
-        downloadButton(ns("downloadPlot"), label = "Download plot")
-      })
-
-      output$downloadPlot <- downloadHandler(
-        filename = function() {
-          paste0(fs_file, "_fedupPlot", ".png")
-        },
-        content = function(file) {
-          device <- function(..., width, height) grDevices::png(..., width = 9,
-            height = 5.5, res = 300, units = "in")
-          ggsave(file, plot = p, device = device)
-      })
-
-      # Download table
-      output$getData <- renderUI({
-        req(fedupPlot)
-        downloadButton(ns("downloadData"), label = "Download table")
-      })
-
-      output$downloadData <- downloadHandler(
-       filename = function() {
-         paste0(fs_file, "_fedupTable", ".txt")
-       },
-       content = function(con) {
-         fwrite(fedupPlot, con, sep="\t", sep2=c("", " ", ""))
+      # Pathway number value box
+      output$nPath <- renderValueBox({
+        valueBox(
+          length(annoFinal), "Tested pathways", icon = icon("list"), color = "purple"
+        )
       })
     })
 
-
     ######
-    # STEP 2
+    # ITERATION 2
     ######
 
     # Render outputs using **custom** settings
@@ -280,41 +227,74 @@ mod_main_server <- function(id, rvals, dataset) {
         mutate(status = factor(status, levels = c("enriched", "depleted"))) %>%
         as.data.frame()
 
+      # Store significant results in rvals object
+      observeEvent(fedupPlot, {
+        rvals$fs_sig_results = fedupPlot
+      })
+
       # Plot
       p <- plotDotPlot(
         df = fedupPlot,
         xVar = rvals$fs_xvar,
         yVar = "pathway",
-        xLab = rvals$fs_xvar,
+        xLab = rvals$fs_xvar_lab,
         fillVar = rvals$fs_fill,
+        fillLab = rvals$fs_fill_lab,
         fillCol = c("#6D90CA", "#F6EB13"),
-        sizeVar = rvals$fs_point
+        sizeVar = rvals$fs_point,
+        sizeLab = rvals$fs_point_lab
       ) +
       facet_grid(rvals$fs_fill, scales = "free", space = "free") +
-      theme(strip.text.y = element_blank())
+      theme(strip.text.y = element_blank(),
+            legend.background = element_rect(color = NA))
+
+      # Store plot in rvals object
+      observeEvent(p, {
+        rvals$fs_plot = p
+      })
+    })
+
+
+    ######
+    # DOWNLOADS
+    ######
+
+
+    observe({
+
+      if (is.null(rvals$fs_sig_results)) {
+        return(NULL)
+      }
 
       ######
       # OUTPUT RENDERING
       ######
 
+      # Background gene number value box
+      output$nRes <- renderValueBox({
+        valueBox(
+          nrow(rvals$fs_sig_results), "Enriched pathways", icon = icon("list"), color = "purple"
+        )
+      })
+
       # Plot output
       output$resPlot <- renderPlot({
-        if (!nrow(fedupPlot)) {
+        if (!nrow(rvals$fs_sig_results)) {
           shinyalert(
             text = "Nothing to plot! Try out another input configuration.",
             size = "xs", type = "warning"
           )
           return(NULL)
         }
-        return(p)
+        return(rvals$fs_plot)
       })
 
       # Table output
       output$resTable <- renderDT({
-        if (!nrow(fedupPlot)) {
+        if (!nrow(rvals$fs_sig_results)) {
           return(NULL)
         }
-        return(fedupPlot)
+        return(rvals$fs_sig_results)
       })
 
       ######
@@ -323,7 +303,7 @@ mod_main_server <- function(id, rvals, dataset) {
 
       # Download plot
       output$getPlot <- renderUI({
-        req(fedupPlot)
+        req(rvals$fs_plot)
         downloadButton(ns("downloadPlot"), label = "Download plot")
       })
 
@@ -334,27 +314,41 @@ mod_main_server <- function(id, rvals, dataset) {
         content = function(file) {
           device <- function(..., width, height) grDevices::png(..., width = 9,
             height = 5.5, res = 300, units = "in")
-          ggsave(file, plot = p, device = device)
+          ggsave(file, plot = rvals$fs_plot, device = device)
       })
 
-      # Download table
-      output$getData <- renderUI({
-        req(fedupPlot)
-        downloadButton(ns("downloadData"), label = "Download table")
+      # Download table (text format)
+      output$getDataTXT <- renderUI({
+        req(rvals$fs_sig_results)
+        downloadButton(ns("downloadDataTXT"), label = "Download table (txt)")
       })
 
-      output$downloadData <- downloadHandler(
+      output$downloadDataTXT <- downloadHandler(
        filename = function() {
          paste0(rvals$fs_file, "_fedupTable", ".txt")
        },
        content = function(con) {
-         fwrite(fedupPlot, con, sep = "\t", sep2 = c("", " ", ""))
+         fwrite(rvals$fs_sig_results, con, sep="\t", sep2=c("", " ", ""))
+      })
+
+      # Download table (excel format)
+      output$getDataXLSX <- renderUI({
+        req(rvals$fs_sig_results)
+        downloadButton(ns("downloadDataXLSX"), label = "Download table (xlsx)")
+      })
+
+      output$downloadDataXLSX <- downloadHandler(
+       filename = function() {
+         paste0(rvals$fs_file, "_fedupTable", ".xlsx")
+       },
+       content = function(con) {
+         write.xlsx(rvals$fs_sig_results, con)
       })
     })
 
 
     ######
-    # STEP 3
+    # CYTOSCAPE
     ######
 
 
@@ -380,8 +374,8 @@ mod_main_server <- function(id, rvals, dataset) {
 
 
       ##### NOTE find way to deal with this .... ####
-      cmd <- paste0("rm ", resultsFolder, "/*/0.txt")
-     # system(cmd)
+      #cmd <- paste0("rm ", resultsFolder, "/*/0.txt")
+      #system(cmd)
 
 
       plotFemap(
@@ -389,8 +383,9 @@ mod_main_server <- function(id, rvals, dataset) {
         resultsFolder = resultsFolder,
         qvalue = rvals$fs_fdr,
         chartData = "DATA_SET",
-        hideNodeLabels = TRUE,
-        netName = "test"
+        hideNodeLabels = FALSE,
+        netName = "fedupEM",
+        netFile = NULL
       )
     })
   })
