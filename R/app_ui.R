@@ -25,9 +25,9 @@ app_ui <- function(request) {
           rep_br(2),
           col_2(h5("External links")),
           rep_br(2),
-          menuItem("Full Vignettes", href = "https://bioconductor.org/packages/release/bioc/html/fedup.html", icon = icon("file-alt")),
+          menuItem("Full Vignettes", href = "https://rosscm.github.io/fedup/", icon = icon("file-alt")),
           menuItem(HTML("&nbsp;&nbsp;Source Code"), href = "https://github.com/rosscm/fedup", icon = icon("github")),
-          menuItem("Cytoscape", href = "https://cytoscape.org/", icon = icon("project-diagram")),
+          menuItem("EnrichmentMap Pipeline", href = "https://apps.cytoscape.org/apps/enrichmentmappipelinecollection", icon = icon("project-diagram")),
           rep_br(9),
           userBox(
             title = userDescription(
