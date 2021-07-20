@@ -221,7 +221,7 @@ mod_main_server <- function(id, rvals, dataset) {
       fedupPlot <- fedupRes %>%
         bind_rows(.id = "set") %>%
         separate(col = "set", into = c("set", "type"), sep = "_") %>%
-        subset(qvalue < rvals$fs_fdr) %>%
+        subset(qvalue <= rvals$fs_fdr) %>%
         mutate(log10qvalue = -log10(qvalue)) %>%
         mutate(pathway = gsub("\\%.*", "", pathway)) %>%
         mutate(status = factor(status, levels = c("enriched", "depleted"))) %>%
